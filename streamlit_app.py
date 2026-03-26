@@ -1,7 +1,15 @@
 import os
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import requests
 import streamlit as st
+
+
+def build_iframe_url(base_url: str, backend_base: str) -> str:
+    parsed = urlparse(base_url)
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    query["apiBase"] = backend_base.rstrip("/")
+    return urlunparse(parsed._replace(query=urlencode(query)))
 
 st.set_page_config(page_title="File Organizer Showcase", layout="wide")
 
@@ -47,4 +55,5 @@ with left:
 
 with right:
     st.subheader("Live UI")
-    st.components.v1.iframe(ui_url, height=900, scrolling=True)
+    iframe_url = build_iframe_url(ui_url, backend_url)
+    st.components.v1.iframe(iframe_url, height=900, scrolling=True)

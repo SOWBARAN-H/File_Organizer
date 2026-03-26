@@ -20,7 +20,10 @@ const progressBar = document.getElementById("progressBar");
 const previewMeta = document.getElementById("previewMeta");
 const previewList = document.getElementById("previewList");
 
-const API_BASE = window.location.port === "4000" ? "" : "http://127.0.0.1:4000";
+const queryParams = new URLSearchParams(window.location.search);
+const apiBaseFromQuery = queryParams.get("apiBase")?.trim();
+const normalizedApiBase = apiBaseFromQuery ? apiBaseFromQuery.replace(/\/+$/, "") : "";
+const API_BASE = normalizedApiBase || (window.location.port === "4000" ? "" : "http://127.0.0.1:4000");
 const API_TARGET = API_BASE || window.location.origin;
 
 const actionButtons = [previewBtn, organizeBtn, restoreBtn, undoBtn, redoBtn];
@@ -109,7 +112,7 @@ async function postJson(url, payload) {
     });
   } catch {
     throw new Error(
-      `Backend is not reachable at ${API_TARGET}. Run the Node server on this machine (npm start) to browse and organize local folders.`
+      `Backend is not reachable at ${API_TARGET}. Start the Node server locally (npm start) or use a public backend URL via ?apiBase=...`
     );
   } finally {
     clearTimeout(timeoutId);
