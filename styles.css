@@ -273,12 +273,27 @@ h1 {
   max-width: 100%;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
+  scrollbar-width: auto;
+  scrollbar-color: #9d907b #e7e2d6;
+  padding-bottom: 6px;
 }
 
 .preview-list::-webkit-scrollbar {
-  display: none;
+  height: 12px;
+}
+
+.preview-list::-webkit-scrollbar-track {
+  background: #e7e2d6;
+  border-radius: 999px;
+}
+
+.preview-list::-webkit-scrollbar-thumb {
+  background: #9d907b;
+  border-radius: 999px;
+}
+
+.preview-list::-webkit-scrollbar-thumb:hover {
+  background: #887b67;
 }
 
 .preview-item {
