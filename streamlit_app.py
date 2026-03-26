@@ -8,7 +8,13 @@ import streamlit as st
 def build_iframe_url(base_url: str, backend_base: str) -> str:
     parsed = urlparse(base_url)
     query = dict(parse_qsl(parsed.query, keep_blank_values=True))
-    query["apiBase"] = backend_base.rstrip("/")
+
+    cleaned_backend = backend_base.strip().rstrip("/")
+    if cleaned_backend:
+        query["apiBase"] = cleaned_backend
+    else:
+        query.pop("apiBase", None)
+
     return urlunparse(parsed._replace(query=urlencode(query)))
 
 st.set_page_config(page_title="File Organizer Showcase", layout="wide")
@@ -40,13 +46,26 @@ with left:
     if st.button("Check /api/health", use_container_width=True):
         try:
             response = requests.get(f"{backend_url}/api/health", timeout=6)
-            if response.ok:
-                st.success("Backend is running")
-                st.json(response.json())
-            else:
-                st.error(f"Backend error: HTTP {response.status_code}")
         except requests.RequestException as exc:
             st.error(f"Cannot reach backend: {exc}")
+        else:
+            if not response.ok:
+                st.error(f"Backend error: HTTP {response.status_code}")
+            else:
+                data = None
+                try:
+                    data = response.json()
+                except ValueError:
+                    data = None
+
+                if isinstance(data, dict) and data.get("success") is True:
+                    st.success("Backend is running")
+                    st.json(data)
+                elif data is not None:
+                    st.warning("Backend responded, but health payload format is unexpected.")
+                    st.json(data)
+                else:
+                    st.warning("Backend responded, but /api/health did not return JSON.")
 
     st.subheader("Demo Tips")
     st.write("- Use Preview before Organize")
