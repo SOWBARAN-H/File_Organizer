@@ -44,28 +44,46 @@ left, right = st.columns([1, 3], gap="large")
 with left:
     st.subheader("Backend Health")
     if st.button("Check /api/health", use_container_width=True):
-        try:
-            response = requests.get(f"{backend_url}/api/health", timeout=6)
-        except requests.RequestException as exc:
-            st.error(f"Cannot reach backend: {exc}")
-        else:
-            if not response.ok:
-                st.error(f"Backend error: HTTP {response.status_code}")
-            else:
-                data = None
-                try:
-                    data = response.json()
-                except ValueError:
-                    data = None
+        response = None
+        last_error = None
 
-                if isinstance(data, dict) and data.get("success") is True:
-                    st.success("Backend is running")
-                    st.json(data)
-                elif data is not None:
-                    st.warning("Backend responded, but health payload format is unexpected.")
-                    st.json(data)
-                else:
-                    st.warning("Backend responded, but /api/health did not return JSON.")
+        # Render free instances may need extra time to wake up from sleep.
+        for timeout_seconds in (8, 25):
+            try:
+                response = requests.get(f"{backend_url}/api/health", timeout=timeout_seconds)
+                last_error = None
+                break
+            except requests.Timeout as exc:
+                last_error = exc
+            except requests.RequestException as exc:
+                last_error = exc
+                break
+
+        if response is None:
+            if isinstance(last_error, requests.Timeout):
+                st.error(
+                    "Backend timed out. If using Render free tier, the service may be sleeping. "
+                    "Wait 20-40 seconds and try again."
+                )
+            else:
+                st.error(f"Cannot reach backend: {last_error}")
+        elif not response.ok:
+            st.error(f"Backend error: HTTP {response.status_code}")
+        else:
+            data = None
+            try:
+                data = response.json()
+            except ValueError:
+                data = None
+
+            if isinstance(data, dict) and data.get("success") is True:
+                st.success("Backend is running")
+                st.json(data)
+            elif data is not None:
+                st.warning("Backend responded, but health payload format is unexpected.")
+                st.json(data)
+            else:
+                st.warning("Backend responded, but /api/health did not return JSON.")
 
     st.subheader("Demo Tips")
     st.write("- Use Preview before Organize")
