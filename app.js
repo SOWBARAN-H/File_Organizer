@@ -21,6 +21,7 @@ const previewMeta = document.getElementById("previewMeta");
 const previewList = document.getElementById("previewList");
 
 const API_BASE = window.location.port === "4000" ? "" : "http://127.0.0.1:4000";
+const API_TARGET = API_BASE || window.location.origin;
 
 const actionButtons = [previewBtn, organizeBtn, restoreBtn, undoBtn, redoBtn];
 const folderState = {
@@ -96,19 +97,41 @@ function ensureFolderPath() {
 }
 
 async function postJson(url, payload) {
-  const response = await fetch(`${API_BASE}${url}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+  let response;
+  try {
+    response = await fetch(`${API_BASE}${url}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+  } catch {
+    throw new Error(
+      `Backend is not reachable at ${API_TARGET}. Run the Node server on this machine (npm start) to browse and organize local folders.`
+    );
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
-  const data = await response.json();
+  const data = await response.json().catch(() => ({ success: false, message: "Invalid server response." }));
 
   if (!response.ok || !data.success) {
     throw new Error(data.message || "Request failed.");
   }
 
   return data;
+}
+
+function renderFolderMessage(message, kind = "info") {
+  folderList.innerHTML = "";
+  const info = document.createElement("button");
+  info.className = "folder-item empty";
+  info.type = "button";
+  info.disabled = true;
+  info.textContent = kind === "loading" ? `Loading: ${message}` : message;
+  folderList.appendChild(info);
 }
 
 function openModal() {
@@ -122,6 +145,10 @@ function closeModal() {
 }
 
 async function loadFolderList(targetPath = null) {
+  renderFolderMessage("Loading folders...", "loading");
+  upBtn.disabled = true;
+  selectCurrentBtn.disabled = true;
+
   const result = await postJson("/api/folders/list", { path: targetPath });
   const data = result.data;
 
@@ -263,6 +290,7 @@ browseBtn.addEventListener("click", async () => {
     openModal();
     await loadFolderList(null);
   } catch (error) {
+    renderFolderMessage(error.message);
     setStatus("error", error.message);
   }
 });
@@ -276,14 +304,20 @@ folderModal.addEventListener("click", (event) => {
 });
 
 rootsBtn.addEventListener("click", () => {
-  loadFolderList(null).catch((error) => setStatus("error", error.message));
+  loadFolderList(null).catch((error) => {
+    renderFolderMessage(error.message);
+    setStatus("error", error.message);
+  });
 });
 
 upBtn.addEventListener("click", () => {
   if (!folderState.parentPath) {
     return;
   }
-  loadFolderList(folderState.parentPath).catch((error) => setStatus("error", error.message));
+  loadFolderList(folderState.parentPath).catch((error) => {
+    renderFolderMessage(error.message);
+    setStatus("error", error.message);
+  });
 });
 
 selectCurrentBtn.addEventListener("click", () => {
