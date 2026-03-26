@@ -265,35 +265,10 @@ h1 {
 
 .preview-list {
   margin-top: 12px;
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 10px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  max-width: 100%;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: auto;
-  scrollbar-color: #9d907b #e7e2d6;
-  padding-bottom: 6px;
-}
-
-.preview-list::-webkit-scrollbar {
-  height: 12px;
-}
-
-.preview-list::-webkit-scrollbar-track {
-  background: #e7e2d6;
-  border-radius: 999px;
-}
-
-.preview-list::-webkit-scrollbar-thumb {
-  background: #9d907b;
-  border-radius: 999px;
-}
-
-.preview-list::-webkit-scrollbar-thumb:hover {
-  background: #887b67;
+  max-height: 320px;
+  overflow: auto;
+  display: grid;
+  gap: 8px;
 }
 
 .preview-item {
@@ -301,25 +276,24 @@ h1 {
   border-radius: 12px;
   padding: 9px 10px;
   background: #fff;
-  flex: 0 0 520px;
-  min-width: 340px;
+  width: 100%;
+  min-width: 0;
 }
 
 .preview-item small {
   display: block;
   color: var(--muted);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .panel-preview {
-  overflow: visible;
+  overflow: hidden;
 }
 
-@media (max-width: 760px) {
-  .preview-item {
-    flex-basis: 88vw;
-    min-width: 88vw;
-  }
+.preview-item strong {
+  display: block;
+  overflow-wrap: anywhere;
 }
 
 .folder-modal {
