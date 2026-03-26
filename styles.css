@@ -265,32 +265,20 @@ h1 {
 
 .preview-list {
   margin-top: 12px;
-  max-height: 260px;
-  overflow-y: auto;
-  overflow-x: scroll;
-  display: grid;
-  gap: 8px;
-  scrollbar-gutter: stable both-edges;
-  scrollbar-color: #b8ad9a #ede9de;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 10px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .preview-list::-webkit-scrollbar {
-  height: 12px;
-  width: 12px;
-}
-
-.preview-list::-webkit-scrollbar-track {
-  background: #ede9de;
-  border-radius: 999px;
-}
-
-.preview-list::-webkit-scrollbar-thumb {
-  background: #b8ad9a;
-  border-radius: 999px;
-}
-
-.preview-list::-webkit-scrollbar-thumb:hover {
-  background: #a2957f;
+  display: none;
 }
 
 .preview-item {
@@ -298,13 +286,25 @@ h1 {
   border-radius: 12px;
   padding: 9px 10px;
   background: #fff;
-  min-width: max-content;
+  flex: 0 0 520px;
+  min-width: 340px;
 }
 
 .preview-item small {
   display: block;
   color: var(--muted);
   white-space: nowrap;
+}
+
+.panel-preview {
+  overflow: visible;
+}
+
+@media (max-width: 760px) {
+  .preview-item {
+    flex-basis: 88vw;
+    min-width: 88vw;
+  }
 }
 
 .folder-modal {
