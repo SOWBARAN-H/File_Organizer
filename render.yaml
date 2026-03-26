@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: file-organizer-backend
+    env: node
+    rootDir: web-organizer-app
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: HOST
+        value: 0.0.0.0
+      - key: BROWSER_SCOPE_HOME_ONLY
+        value: "true"

@@ -1,7 +1,7 @@
 const path = require("node:path");
 
 const PORT = Number(process.env.PORT || 4000);
-const HOST = process.env.HOST || "127.0.0.1";
+const HOST = process.env.HOST || "0.0.0.0";
 const BROWSER_SCOPE_HOME_ONLY = String(process.env.BROWSER_SCOPE_HOME_ONLY || "true").toLowerCase() !== "false";
 
 const METADATA_FILENAME = ".file_organizer_metadata.json";
