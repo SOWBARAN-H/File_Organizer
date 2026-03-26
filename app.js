@@ -19,6 +19,8 @@ const statusText = document.getElementById("statusText");
 const progressBar = document.getElementById("progressBar");
 const previewMeta = document.getElementById("previewMeta");
 const previewList = document.getElementById("previewList");
+const previewSliderWrap = document.getElementById("previewSliderWrap");
+const previewSlider = document.getElementById("previewSlider");
 
 const API_BASE = window.location.port === "4000" ? "" : "http://127.0.0.1:4000";
 const API_TARGET = API_BASE || window.location.origin;
@@ -197,6 +199,7 @@ function renderPreview(items) {
     const empty = document.createElement("p");
     empty.textContent = "No files found in folder root to organize.";
     previewList.appendChild(empty);
+    updatePreviewSlider();
     return;
   }
 
@@ -223,6 +226,20 @@ function renderPreview(items) {
   });
 
   previewList.appendChild(fragment);
+  updatePreviewSlider();
+}
+
+function updatePreviewSlider() {
+  const maxScroll = Math.max(previewList.scrollWidth - previewList.clientWidth, 0);
+
+  previewSlider.max = String(maxScroll);
+  previewSlider.value = String(Math.min(Number(previewSlider.value || 0), maxScroll));
+  previewSlider.disabled = maxScroll === 0;
+  previewSliderWrap.hidden = maxScroll === 0;
+
+  if (maxScroll === 0) {
+    previewList.scrollLeft = 0;
+  }
 }
 
 async function runAction(action, endpoint) {
@@ -284,6 +301,18 @@ organizeBtn.addEventListener("click", () => runAction("Organize", "/api/organize
 restoreBtn.addEventListener("click", () => runAction("Restore", "/api/restore"));
 undoBtn.addEventListener("click", () => runAction("Undo", "/api/undo"));
 redoBtn.addEventListener("click", () => runAction("Redo", "/api/redo"));
+
+previewSlider.addEventListener("input", () => {
+  previewList.scrollLeft = Number(previewSlider.value);
+});
+
+previewList.addEventListener("scroll", () => {
+  previewSlider.value = String(previewList.scrollLeft);
+});
+
+window.addEventListener("resize", () => {
+  updatePreviewSlider();
+});
 
 browseBtn.addEventListener("click", async () => {
   try {

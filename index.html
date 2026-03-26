@@ -10,7 +10,7 @@
       href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Source+Sans+3:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260326b" />
   </head>
   <body>
     <div class="background-orb background-orb--left"></div>
@@ -66,6 +66,10 @@
           <span id="previewMeta" class="preview-meta">No preview yet</span>
         </div>
         <div id="previewList" class="preview-list"></div>
+        <div id="previewSliderWrap" class="preview-scroll-control" hidden>
+          <label for="previewSlider">Move left and right</label>
+          <input id="previewSlider" type="range" min="0" max="0" value="0" step="1" />
+        </div>
       </section>
 
       <section id="folderModal" class="folder-modal" aria-hidden="true">
@@ -91,6 +95,6 @@
       </section>
     </main>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=20260326b"></script>
   </body>
 </html>
